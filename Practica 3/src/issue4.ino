@@ -92,8 +92,13 @@ void setup() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
     delay(500);
   }
+
+  Serial.println("\n Connectat!");
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
 
   server.on("/", enviarPaginaPrincipal);
   server.begin();
