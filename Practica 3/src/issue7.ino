@@ -5,6 +5,7 @@ WebServer server(80);
 
 const int pinLDR = 35;
 const int pinLM35 = 34;
+const int pinLED = 25;  // LED
 
 const char* ssid = "Zigorneta";
 const char* password = "12345678";
@@ -18,7 +19,7 @@ int readAnalog(int pin) {
   return sum / 10;
 }
 
-// ----------- PAGINA PRINCIPAL (con botón) -----------
+// ----------- PAGINA PRINCIPAL -----------
 const char htmlPage[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="es">
@@ -80,13 +81,12 @@ const char htmlPage[] PROGMEM = R"rawliteral(
     <a href="/credits">
       <button class="btn">Credits</button>
     </a>
-
   </div>
 </body>
 </html>
 )rawliteral";
 
-// ----------- PAGINA DE CREDITOS -----------
+// ----------- PAGINA CREDITOS -----------
 const char creditsPage[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="es">
@@ -94,46 +94,28 @@ const char creditsPage[] PROGMEM = R"rawliteral(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Créditos</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #222;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 1.5rem;
-    }
-    a {
-      margin-top: 20px;
-      color: #00ffff;
-      text-decoration: none;
-    }
-  </style>
 </head>
-<body>
+<body style="background:#222; color:white; text-align:center; font-family:Arial;">
   <h1>Créditos</h1>
   <p>Autors: Asier Martínez y Ruben Santamaria</p>
-  <a href="/">⬅ Volver</a>
+  <a href="/" style="color:cyan;">⬅ Volver</a>
 </body>
 </html>
 )rawliteral";
 
+// ----------- PAGINA PRINCIPAL -----------
 void enviarPaginaPrincipal() {
 
   int valorLDR = readAnalog(pinLDR);
   int valorTempRaw = readAnalog(pinLM35);
   float tempC = (valorTempRaw * 5.0 / 4095.0) * 100.0;
+
+  // 🔴 CONTROL DEL LED
+  if (valorLDR > 1000 || tempC > 22) {
+    digitalWrite(pinLED, HIGH);
+  } else {
+    digitalWrite(pinLED, LOW);
+  }
 
   String ldrTexto = String(valorLDR);
   String tempTexto = String(tempC, 1);
@@ -155,13 +137,16 @@ void enviarPaginaPrincipal() {
   server.send(200, "text/html", html);
 }
 
-// ----------- FUNCION CREDITOS -----------
+// ----------- CREDITOS -----------
 void enviarCreditos() {
   server.send(200, "text/html", creditsPage);
 }
 
 void setup() {
   Serial.begin(115200);
+
+  pinMode(pinLED, OUTPUT); // ✅ IMPORTANTE
+
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -174,7 +159,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   server.on("/", enviarPaginaPrincipal);
-  server.on("/credits", enviarCreditos); // <-- NUEVA RUTA
+  server.on("/credits", enviarCreditos);
 
   server.begin();
 }
