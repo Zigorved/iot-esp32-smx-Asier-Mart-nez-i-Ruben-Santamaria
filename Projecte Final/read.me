@@ -1,1 +1,88 @@
 
+# Classroom Comfort Monitor
+
+Sistema de monitorización y control automático del bienestar en un aula escolar, basado en **ESP32**.
+
+---
+
+## Descripción
+
+Este proyecto controla la temperatura de un aula en tiempo real para garantizar
+el confort de los alumnos y optimizar el uso del ventilador, evitando consumo
+innecesario de energía. La temperatura se muestra tanto en una pantalla OLED
+local como en una página web accesible desde cualquier dispositivo conectado
+a la misma red.
+
+---
+
+## Funcionamiento
+
+| Temperatura | LED | Ventilador (Servo) | OLED |
+|---|---|---|---|
+| menor o igual a 25°C | Apagado | Parado (90°) | Temperatura normal |
+| mayor a 25°C | Parpadeando | Oscilando 0°-180° | ALERTA TEMPERATURA |
+
+- El sistema lee la temperatura cada ciclo mediante el sensor **LM35**.
+- Si supera los **25°C**, activa automáticamente el ventilador y alerta visualmente.
+- La página web se refresca sola cada **2 segundos** con el valor actual.
+
+---
+
+## Hardware necesario
+
+- ESP32
+- Sensor de temperatura **LM35**
+- Pantalla **OLED SSD1306** (128x64, I2C)
+- **Servo motor** (simula el ventilador)
+- **LED** indicador de alerta
+- Resistencias y cables de conexión
+
+## Pines utilizados
+
+| Componente | Pin ESP32 |
+|---|---|
+| LM35 | 34 |
+| LED | 25 |
+| Servo | 17 |
+| OLED SDA | 21 |
+| OLED SCL | 22 |
+
+---
+
+## Configuración WiFi
+
+Edita estas líneas en el código con los datos de tu red:
+
+```cpp
+const char* ssid     = "TuRedWiFi";
+const char* password = "TuContraseña";
+```
+
+Al arrancar, la IP del servidor aparece en la pantalla OLED y por el puerto
+Serial. Introduce esa IP en cualquier navegador del aula para ver la
+temperatura en tiempo real.
+
+---
+
+## Librerías necesarias
+
+- `ESP32Servo`
+- `Adafruit GFX Library`
+- `Adafruit SSD1306`
+- `WiFi` (incluida en el core de ESP32)
+- `WebServer` (incluida en el core de ESP32)
+
+---
+
+## Objetivo del proyecto
+
+Mejorar la **eficiencia energética** y el **bienestar en el aula** mediante
+la automatización del ventilador, activándolo únicamente cuando la temperatura
+lo requiere, y proporcionando información accesible a profesores y alumnos en
+tiempo real.
+
+---
+
+## Autores
+
+Asier Martínez y Ruben Santamaria
